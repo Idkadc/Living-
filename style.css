@@ -1,12 +1,19 @@
-:root{--bg:#081018;--panel:#0b1620;--muted:#9fb2bc;--accent:#66d9ff;--danger:#ff6b6b}
-*{box-sizing:border-box;font-family:Inter,system-ui,Arial;color:var(--muted)}
-body{margin:0;background:linear-gradient(180deg,#041018,#07121a);min-height:100vh;padding:14px}
-.bar{display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--panel);border-radius:10px}
+:root{
+  --bg:#041018;
+  --panel:#0b1620;
+  --muted:#9fb2bc;
+  --accent:#66d9ff;
+  --danger:#ff6b6b;
+  --virus:#ff4d6d;
+}
+*{box-sizing:border-box;font-family:Inter,system-ui,Arial;color:var(--muted);margin:0}
+body{margin:0;background:linear-gradient(180deg,#041018,#07121a);min-height:100vh;overflow:hidden}
+.bar{display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--panel);border-radius:10px;margin:12px}
 .title{font-weight:700;color:#eaf6ff}
 .btn{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.03);padding:8px 10px;border-radius:8px;color:var(--muted);cursor:pointer;margin-left:6px}
 .btn.danger{background:linear-gradient(90deg,var(--danger),#ff8a8a);color:#111}
-.main{display:flex;gap:14px;margin-top:12px}
-.left{flex:1}
+.main{display:flex;gap:14px;padding:12px}
+.left{flex:1;max-height:calc(100vh - 120px);overflow:auto}
 .right{width:320px}
 .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
 .lfHeader{display:flex;justify-content:space-between;align-items:center}
@@ -19,8 +26,45 @@ body{margin:0;background:linear-gradient(180deg,#041018,#07121a);min-height:100v
 .small{font-size:13px;color:#9aa9b3;margin-top:10px}
 .muted{color:#7f8b92}
 
-.taskIcon{position:fixed;right:18px;bottom:18px;background:#071018;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);font-size:20px;cursor:pointer;z-index:80}
+/* virus critter */
+.virus{
+  position:fixed;
+  width:84px;
+  height:84px;
+  background:linear-gradient(180deg,var(--virus),#cc335a);
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-weight:800;
+  cursor:pointer;
+  z-index:60;
+  box-shadow:0 8px 30px rgba(0,0,0,0.5);
+  transition:transform 0.2s ease, filter 0.25s ease, left 0.6s ease, top 0.6s ease;
+  user-select:none;
+}
+.virus.sleep{filter:grayscale(80%) brightness(0.55) saturate(0.6); transform:scale(0.9)}
+.virus.shake{animation:shake 0.45s}
+@keyframes shake{0%{transform:translate(0)}25%{transform:translate(-6px)}50%{transform:translate(6px)}75%{transform:translate(-6px)}100%{transform:translate(0)}}
+
+/* speech bubble */
+.bubble{
+  position:fixed;
+  background:rgba(255,255,255,0.98);
+  color:#07121a;
+  padding:8px 10px;
+  border-radius:8px;
+  max-width:230px;
+  font-size:13px;
+  z-index:70;
+  box-shadow:0 6px 20px rgba(0,0,0,0.4);
+}
 .hidden{display:none}
+
+/* task icon (simulated minimize) */
+.taskIcon{position:fixed;right:18px;bottom:18px;background:#071018;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);font-size:20px;cursor:pointer;z-index:80}
+.taskIcon.hidden{display:none}
 
 /* modal takeover */
 .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);z-index:90}
