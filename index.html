@@ -1,16 +1,16 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Living File — Ben Fary Demo</title>
-<link rel="stylesheet" href="style.css" />
-<link id="fav" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22><text y=%2211%22 font-size=%2214%22>◈</text></svg>">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Living File — Ben Fary Demo</title>
+  <link rel="stylesheet" href="style.css" />
+  <link id="fav" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22><text y=%2211%22 font-size=%2214%22>◈</text></svg>">
 </head>
 <body>
-  <div id="app" class="app">
+  <div id="uiRoot" class="ui-root">
     <header class="bar">
-      <div class="title">Ben Fary — Living File Demo</div>
+      <div class="title">Ben Fary — Living File</div>
       <div class="controls">
         <button id="btnTalk" class="btn">Talk</button>
         <button id="btnPoke" class="btn">Poke</button>
@@ -31,7 +31,7 @@
           <div class="lfMeta">State: <span id="lfState">Dormant</span> — Mood: <span id="lfMood">calm</span></div>
         </div>
 
-        <h4 style="margin-top:14px">Interaction</h4>
+        <h4 style="margin-top:14px">Player actions</h4>
         <div class="controlsRow">
           <button id="btnQuarantine" class="btn">Quarantine</button>
           <button id="btnRestore" class="btn">Restore</button>
@@ -51,7 +51,11 @@
     </main>
   </div>
 
-  <!-- simulated "minimized" taskbar icon -->
+  <!-- moving critter -->
+  <div id="virus" class="virus" title="Ben Fary — click to interact">BFG</div>
+  <div id="bubble" class="bubble hidden"></div>
+
+  <!-- simulated "minimized" task icon -->
   <div id="taskIcon" class="taskIcon hidden" title="Restore Ben Fary">◈</div>
 
   <!-- takeover modal -->
