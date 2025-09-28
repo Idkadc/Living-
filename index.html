@@ -4,177 +4,64 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Living File Simulation</title>
-  <style>
-    body {
-      height: 100vh;
-      margin: 0;
-      overflow: hidden;
-      background: #111;
-      color: white;
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-    }
-
-    #creature {
-      width: 100px;
-      height: 100px;
-      background: limegreen;
-      border-radius: 50%;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      font-size: 2rem;
-      transition: left 1.5s linear, top 1.5s linear, background 0.5s;
-    }
-
-    #creature.angry {
-      background: red;
-    }
-
-    #controls {
-      position: fixed;
-      bottom: 10px;
-      left: 10px;
-      display: flex;
-      gap: 10px;
-    }
-
-    #controls button {
-      padding: 8px 16px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    #log {
-      flex: 1;
-      overflow-y: auto;
-      background: #222;
-      border-top: 2px solid #333;
-      padding: 10px;
-      font-size: 14px;
-    }
-
-    #name {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      font-size: 20px;
-      font-weight: bold;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
+  <link id="fav" rel="icon" href="">
 </head>
 <body>
-  <div id="name">Creature.exe</div>
-  <div id="creature">😴</div>
+  <div id="uiRoot">
+    <div class="bar">
+      <div class="title">Living File</div>
+      <div>
+        <button class="btn" id="btnTalk">Talk</button>
+        <button class="btn" id="btnPoke">Poke</button>
+        <button class="btn" id="btnIgnore">Ignore</button>
+        <button class="btn" id="btnQuarantine">Quarantine</button>
+        <button class="btn" id="btnRestore">Restore</button>
+        <button class="btn" id="btnPreserve">Preserve</button>
+        <button class="btn danger" id="btnReset">Reset</button>
+      </div>
+    </div>
 
-  <div id="controls">
-    <button id="calmBtn">Calm</button>
-    <button id="resetBtn">Reset</button>
-    <button id="talkBtn">Talk</button>
+    <div class="main">
+      <div class="left">
+        <div class="log" id="log"></div>
+      </div>
+      <div class="right">
+        <div class="card">
+          <div class="lfHeader">
+            <span class="lfLabel">State:</span>
+            <span id="lfState">Dormant</span>
+          </div>
+          <div class="lfHeader">
+            <span class="lfLabel">Mood:</span>
+            <span id="lfMood">Calm</span>
+          </div>
+          <div class="lfHeader">
+            <span class="lfLabel">Signature:</span>
+            <span class="lfSig" id="lfSig">◈ BFG::v1.14</span>
+          </div>
+          <div class="lfContent" id="lfContent">we rewrite what hurts.</div>
+          <div class="lfMeta small">
+            Dormancy: <input id="dorm" value="10" size="3">s —
+            Wake escalation: <input id="wake" value="6" size="3">s
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div id="log"></div>
+  <div id="virus" class="virus">◈</div>
+  <div id="bubble" class="bubble hidden"></div>
+  <div id="taskIcon" class="taskIcon hidden">◈</div>
 
-  <script>
-    const creature = document.getElementById('creature');
-    const calmBtn = document.getElementById('calmBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const talkBtn = document.getElementById('talkBtn');
-    const log = document.getElementById('log');
+  <div id="modal" class="modal hidden">
+    <div class="modalCard">
+      <div class="modalGlyph">✦</div>
+      <div class="modalText" id="modalText">I can be very convincing.</div>
+      <button class="btn" id="modalClose">Calm</button>
+    </div>
+  </div>
 
-    let state = "sleeping"; // sleeping, awake, angry
-    let wanderInterval;
-
-    function logMessage(msg) {
-      const p = document.createElement("p");
-      p.textContent = `[Creature.exe]: ${msg}`;
-      log.appendChild(p);
-      log.scrollTop = log.scrollHeight;
-    }
-
-    function setState(newState) {
-      state = newState;
-      if (state === "sleeping") {
-        creature.textContent = "😴";
-        creature.classList.remove("angry");
-        logMessage("...sleeping...");
-      } else if (state === "awake") {
-        creature.textContent = "👀";
-        creature.classList.remove("angry");
-        logMessage("I’m awake now...");
-      } else if (state === "angry") {
-        creature.textContent = "😡";
-        creature.classList.add("angry");
-        logMessage("Hey! Don’t poke me!");
-      }
-    }
-
-    function randomWander() {
-      const x = Math.random() * (window.innerWidth - 120);
-      const y = Math.random() * (window.innerHeight - 140);
-      creature.style.left = `${x}px`;
-      creature.style.top = `${y}px`;
-    }
-
-    function startWandering() {
-      clearInterval(wanderInterval);
-      wanderInterval = setInterval(() => {
-        if (state === "awake") {
-          randomWander();
-        }
-      }, 4000);
-    }
-
-    calmBtn.addEventListener("click", () => {
-      if (state === "angry" || state === "awake") {
-        setState("sleeping");
-        clearInterval(wanderInterval);
-      }
-    });
-
-    resetBtn.addEventListener("click", () => {
-      setState("sleeping");
-      creature.style.left = "50%";
-      creature.style.top = "50%";
-      logMessage("Resetting position and state...");
-    });
-
-    talkBtn.addEventListener("click", () => {
-      if (state === "awake") {
-        logMessage("You’re still here? 😏");
-      } else if (state === "angry") {
-        logMessage("Leave me alone! 😡");
-      } else {
-        logMessage("Zzz...");
-      }
-    });
-
-    creature.addEventListener("click", () => {
-      if (state === "awake") {
-        setState("angry");
-        randomWander();
-        setTimeout(() => setState("sleeping"), 7000);
-      } else if (state === "sleeping") {
-        setState("awake");
-        startWandering();
-      }
-    });
-
-    // Random chance to wake up when ignored
-    setInterval(() => {
-      if (state === "sleeping" && Math.random() > 0.75) {
-        setState("awake");
-        startWandering();
-      }
-    }, 6000);
-
-    setState("sleeping");
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
