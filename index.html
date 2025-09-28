@@ -12,6 +12,8 @@
       background: #111;
       color: white;
       font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
     }
 
     #creature {
@@ -27,7 +29,8 @@
       justify-content: center;
       align-items: center;
       cursor: pointer;
-      transition: transform 0.3s;
+      font-size: 2rem;
+      transition: left 1.5s linear, top 1.5s linear, background 0.5s;
     }
 
     #creature.angry {
@@ -38,82 +41,138 @@
       position: fixed;
       bottom: 10px;
       left: 10px;
+      display: flex;
+      gap: 10px;
     }
 
     #controls button {
-      padding: 10px 20px;
-      font-size: 16px;
+      padding: 8px 16px;
+      font-size: 14px;
       cursor: pointer;
+    }
+
+    #log {
+      flex: 1;
+      overflow-y: auto;
+      background: #222;
+      border-top: 2px solid #333;
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    #name {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      font-size: 20px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
+  <div id="name">Creature.exe</div>
   <div id="creature">😴</div>
 
   <div id="controls">
-    <button id="calmBtn">Calm Creature</button>
+    <button id="calmBtn">Calm</button>
+    <button id="resetBtn">Reset</button>
+    <button id="talkBtn">Talk</button>
   </div>
+
+  <div id="log"></div>
 
   <script>
     const creature = document.getElementById('creature');
     const calmBtn = document.getElementById('calmBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const talkBtn = document.getElementById('talkBtn');
+    const log = document.getElementById('log');
 
     let state = "sleeping"; // sleeping, awake, angry
-    let interval;
+    let wanderInterval;
+
+    function logMessage(msg) {
+      const p = document.createElement("p");
+      p.textContent = `[Creature.exe]: ${msg}`;
+      log.appendChild(p);
+      log.scrollTop = log.scrollHeight;
+    }
 
     function setState(newState) {
       state = newState;
       if (state === "sleeping") {
         creature.textContent = "😴";
         creature.classList.remove("angry");
+        logMessage("...sleeping...");
       } else if (state === "awake") {
         creature.textContent = "👀";
         creature.classList.remove("angry");
+        logMessage("I’m awake now...");
       } else if (state === "angry") {
         creature.textContent = "😡";
         creature.classList.add("angry");
+        logMessage("Hey! Don’t poke me!");
       }
     }
 
-    function randomMove() {
-      const x = Math.random() * (window.innerWidth - 100);
-      const y = Math.random() * (window.innerHeight - 100);
+    function randomWander() {
+      const x = Math.random() * (window.innerWidth - 120);
+      const y = Math.random() * (window.innerHeight - 140);
       creature.style.left = `${x}px`;
       creature.style.top = `${y}px`;
     }
 
-    function wakeUp() {
-      if (state === "sleeping") {
-        setState("awake");
-        randomMove();
-        clearInterval(interval);
-        interval = setInterval(() => {
-          if (state === "awake") randomMove();
-        }, 2000);
-      }
+    function startWandering() {
+      clearInterval(wanderInterval);
+      wanderInterval = setInterval(() => {
+        if (state === "awake") {
+          randomWander();
+        }
+      }, 4000);
     }
 
     calmBtn.addEventListener("click", () => {
       if (state === "angry" || state === "awake") {
         setState("sleeping");
-        clearInterval(interval);
+        clearInterval(wanderInterval);
+      }
+    });
+
+    resetBtn.addEventListener("click", () => {
+      setState("sleeping");
+      creature.style.left = "50%";
+      creature.style.top = "50%";
+      logMessage("Resetting position and state...");
+    });
+
+    talkBtn.addEventListener("click", () => {
+      if (state === "awake") {
+        logMessage("You’re still here? 😏");
+      } else if (state === "angry") {
+        logMessage("Leave me alone! 😡");
+      } else {
+        logMessage("Zzz...");
       }
     });
 
     creature.addEventListener("click", () => {
       if (state === "awake") {
         setState("angry");
-        randomMove();
-        setTimeout(() => setState("sleeping"), 5000);
+        randomWander();
+        setTimeout(() => setState("sleeping"), 7000);
+      } else if (state === "sleeping") {
+        setState("awake");
+        startWandering();
       }
     });
 
-    // wakes up after a while of being ignored
+    // Random chance to wake up when ignored
     setInterval(() => {
-      if (state === "sleeping" && Math.random() > 0.7) {
-        wakeUp();
+      if (state === "sleeping" && Math.random() > 0.75) {
+        setState("awake");
+        startWandering();
       }
-    }, 5000);
+    }, 6000);
 
     setState("sleeping");
   </script>
