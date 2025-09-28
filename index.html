@@ -1,147 +1,121 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Living Virus Fixed</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Living File Simulation</title>
   <style>
-    body { margin:0; height:100vh; background:#0a0f14; overflow:hidden; }
-    #virus {
-      position:absolute;
-      width:80px; height:80px;
-      background:#ff3366;
-      border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      font-size:12px; color:white; font-family:sans-serif;
-      cursor:pointer;
-      transition:filter 0.3s ease;
-      z-index:10;
-    }
-    #bubble {
-      position:absolute;
-      background:white;
-      padding:6px 10px;
-      border-radius:6px;
-      font-size:12px;
-      font-family:sans-serif;
-      max-width:150px;
-      display:none;
-      z-index:20;
-    }
-    .sleep { filter:grayscale(80%) brightness(0.5); }
-    .shake { animation:shake 0.4s; }
-    @keyframes shake {
-      0%{transform:translate(0,0);}
-      25%{transform:translate(-5px,0);}
-      50%{transform:translate(5px,0);}
-      75%{transform:translate(-5px,0);}
-      100%{transform:translate(0,0);}
+    body {
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+      background: #111;
+      color: white;
+      font-family: sans-serif;
     }
 
-    /* overlay fix */
-    #overlay {
-      position:fixed;
-      top:0; left:0;
-      width:100%; height:100%;
-      background:rgba(0,0,0,0.7);
-      display:none;
-      align-items:center; justify-content:center;
-      z-index:5; /* below virus + bubble */
-      pointer-events:none; /* click-through when just dimmed */
+    #creature {
+      width: 100px;
+      height: 100px;
+      background: limegreen;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.3s;
     }
-    #overlay.active {
-      display:flex;
-      pointer-events:auto; /* now it blocks clicks */
+
+    #creature.angry {
+      background: red;
     }
-    #overlay button {
-      padding:10px 16px;
-      background:#ff3366;
-      border:none;
-      border-radius:8px;
-      color:white;
-      font-size:14px;
-      cursor:pointer;
+
+    #controls {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+    }
+
+    #controls button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div id="virus">BFG</div>
-  <div id="bubble"></div>
-  <div id="overlay">
-    <button id="calmBtn">Calm Virus</button>
+  <div id="creature">😴</div>
+
+  <div id="controls">
+    <button id="calmBtn">Calm Creature</button>
   </div>
 
-<script>
-const virus = document.getElementById("virus");
-const bubble = document.getElementById("bubble");
-const overlay = document.getElementById("overlay");
-const calmBtn = document.getElementById("calmBtn");
+  <script>
+    const creature = document.getElementById('creature');
+    const calmBtn = document.getElementById('calmBtn');
 
-let awake = true;
-let ignoreTimer = 0;
+    let state = "sleeping"; // sleeping, awake, angry
+    let interval;
 
-// movement
-function wander(){
-  if(!awake) return;
-  const x = Math.random()*(window.innerWidth-100);
-  const y = Math.random()*(window.innerHeight-100);
-  virus.style.left = x+"px";
-  virus.style.top = y+"px";
-}
-setInterval(wander, 4000);
+    function setState(newState) {
+      state = newState;
+      if (state === "sleeping") {
+        creature.textContent = "😴";
+        creature.classList.remove("angry");
+      } else if (state === "awake") {
+        creature.textContent = "👀";
+        creature.classList.remove("angry");
+      } else if (state === "angry") {
+        creature.textContent = "😡";
+        creature.classList.add("angry");
+      }
+    }
 
-// talking
-function say(msg){
-  bubble.textContent = msg;
-  bubble.style.left = (virus.offsetLeft+90)+"px";
-  bubble.style.top = (virus.offsetTop-10)+"px";
-  bubble.style.display = "block";
-  setTimeout(()=>bubble.style.display="none", 3000);
-}
+    function randomMove() {
+      const x = Math.random() * (window.innerWidth - 100);
+      const y = Math.random() * (window.innerHeight - 100);
+      creature.style.left = `${x}px`;
+      creature.style.top = `${y}px`;
+    }
 
-// sleep if ignored
-setInterval(()=>{
-  ignoreTimer++;
-  if(ignoreTimer>5 && awake){
-    awake=false;
-    virus.classList.add("sleep");
-    say("...zzz...");
-  }
-}, 3000);
+    function wakeUp() {
+      if (state === "sleeping") {
+        setState("awake");
+        randomMove();
+        clearInterval(interval);
+        interval = setInterval(() => {
+          if (state === "awake") randomMove();
+        }, 2000);
+      }
+    }
 
-// click wakes
-virus.addEventListener("click", ()=>{
-  ignoreTimer=0;
-  if(!awake){
-    awake=true;
-    virus.classList.remove("sleep");
-    say("You woke me up!");
-  } else {
-    say("Stop poking me!");
-    if(Math.random()<0.3) annoy();
-  }
-});
+    calmBtn.addEventListener("click", () => {
+      if (state === "angry" || state === "awake") {
+        setState("sleeping");
+        clearInterval(interval);
+      }
+    });
 
-// annoying action
-function annoy(){
-  if(Math.random()<0.5){
-    virus.classList.add("shake");
-    say("hehe >:)");
-    setTimeout(()=>virus.classList.remove("shake"),500);
-  } else {
-    overlay.classList.add("active");
-    say("Now you deal with this...");
-  }
-}
+    creature.addEventListener("click", () => {
+      if (state === "awake") {
+        setState("angry");
+        randomMove();
+        setTimeout(() => setState("sleeping"), 5000);
+      }
+    });
 
-// calm button
-calmBtn.addEventListener("click", ()=>{
-  overlay.classList.remove("active");
-  say("Fine, I’ll chill… for now.");
-});
+    // wakes up after a while of being ignored
+    setInterval(() => {
+      if (state === "sleeping" && Math.random() > 0.7) {
+        wakeUp();
+      }
+    }, 5000);
 
-// startup
-wander();
-say("Hello. I'm Ben Fary Gennington...");
-</script>
+    setState("sleeping");
+  </script>
 </body>
 </html>
